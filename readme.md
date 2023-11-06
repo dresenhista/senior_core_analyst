@@ -1,17 +1,23 @@
 ## Senior Growth Analyst
 Hi there!
-If you are able to see this repo, you have moved to the next step of this hiring process, congratulations!
+If you are able to see this repo, you have moved to the next step of this hiring process, congratulations! This homework assessment should take between 3 and 8 hours for you to do, depending on your technical skills. 
 
-As part of the hiring process at Affirm we need to evaluate your technical skills. This take-home assessment has all the components that you will be using at work once you join the team, so hopefully, this is also a good opportunity to evaluate if you like what you willbe working on.
+As part of the hiring process at Affirm we need to evaluate your technical skills. 
 
 Some of the hard skills we are trying to evaluate:
 * Github (for starters)
 * SQL
+* Python
+
+This also may be able to evaluate other skills such as your ability to understand and think about data infrastructure and engineer problems and formulate hypothesis for investigation
+
+
+This take-home assessment has all the components that you will be using at work once you join the team, so hopefully, this is also a good opportunity for you to evaluate the job.
 
 We will also use the data in this repository throughout your interview process. 
 
 ## Data 
-This Github repo has three files in data, please use them as reference moving forward.
+This Github repo has three files in /data, please use them as reference moving forward.
 
 
 
