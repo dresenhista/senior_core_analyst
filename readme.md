@@ -7,17 +7,21 @@ As part of the hiring process at Affirm we need to evaluate your technical skill
 Some of the hard skills we are trying to evaluate:
 * Github (for starters)
 * SQL
-* Python
 
+We will also use the data in this repository throughout your interview process. 
 
 ## Data 
 This Github repo has three files in data, please use them as reference moving forward.
 
 ## Delivery 
 Please clone this branch locally and submit your branch using a PR.
+Your PR should have the following files:
+* a .txt file with the questions and written answers (you can use the md format to your branch). 
+* a .sql file with the queries you used to answer the questions
+* a .python file with the script of question 4
 
 
-## SQL
+
 1. Please review the integrity of the data. Do you notice any data anomalies? If so, please describe them.
 
 
@@ -29,6 +33,8 @@ Please clone this branch locally and submit your branch using a PR.
 
 2. Calculate conversion through the funnel by day such that the data structure is:
 
-3.  Which merchant industry and/or user demographic would you focus business development on based on current checkout funnel and loan performance? (Assume we have roughly the same market penetration in each so that saturation isn't a concern and assume revenue to Affirm = (mdr + loan-return-percentage) * loan-amount). Please put together a 3-page PowerPoint presentation to the executive team with your recommendation (title and agenda slides don’t count in the total).
+3. At Affirm we use the concept of GMV which is basically the financed amount of loans generated in a timeframe. Let's say that on a given a day a dashboard that reports GMV by day by merchant looks off. Which models would you prioritize investigating and why? 
+
+4. The Storage and Replication team is now asking us to partition the data so it increases the performance of queries, which file (only one) would you see being the most benefitial of this structure? And which partitions would choose and why? Please provide a python script that will load the chosen file and the script that would partition it following your choice
 
 
