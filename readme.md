@@ -1,16 +1,15 @@
 ## Senior Growth Analyst
 Hi there!
-If you are able to see this repo, you have moved to the next step of this hiring process, congratulations! This homework assessment should take between 3 and 8 hours for you to do, depending on your technical skills. 
+If you can see this repo, you have moved to the next step of this hiring process, congratulations! This homework assessment should take anywhere from 3 and 8 hours to complete, depending on your technical skills. 
 
-As part of the hiring process at Affirm we need to evaluate your technical skills. 
+As part of the hiring process at Affirm, we need to evaluate your technical skills.
 
 Some of the hard skills we are trying to evaluate:
 * Github (for starters)
 * SQL
 * Python
 
-This also may be able to evaluate other skills such as your ability to understand and think about data infrastructure and engineer problems and formulate hypothesis for investigation
-
+This also may be able to evaluate other skills such as your ability to understand and think about data infrastructure, work through engineering problems, as well as formulate hypotheses for investigation.
 
 This take-home assessment has all the components that you will be using at work once you join the team, so hopefully, this is also a good opportunity for you to evaluate the job.
 
@@ -20,19 +19,17 @@ We will also use the data in this repository throughout your interview process.
 This Github repo has three files in /data, please use them as reference moving forward.
 
 
-
-
 ## Delivery 
 Please clone this branch locally and submit your branch using a PR.
 Your PR should have the following files:
-* a .txt file with the questions and written answers (you can use the md format to your branch). 
+* a .txt file with the questions and written answers (you can use the .md format for your branch). 
 * a .sql file with the queries you used to answer the questions
 * a .python file with the script of question 4
 
 
 ## Data Description
 `funnel.csv`
-Data about events occurring on Affirm's checkout product (try it out at a merchant like Casper to get a sense for the flow)
+Data about events occurring on Affirm's checkout product (try it out at a merchant like Casper to get a sense of the flow)
 merchant_id: Unique identifier for the merchant (links to merchants.csv) 
 * user_id: Unique identifier for the user (only populated after the user logins when ‘Loan Terms Run’ action takes place)
 * checkout_id: Unique identifier for a given checkout (links to loans.csv)
@@ -51,7 +48,7 @@ merchant_id: Unique identifier for the merchant
 * loan_length_months: length of the loan in months
 * mdr: merchant discount rate (transaction rate charged to the merchant for each loan)
 * apr: annual percentage rate (interest rate charged to the user)
-* fico_score: score that measures a user’s risk, higher score means less risk (ranges from 300-850)
+* fico_score: score that measures a user’s risk, a higher score means less risk (ranges from 300-850)
 * loan_return_percentage: The return Affirm saw on the loan (negative values mean the loan was not paid back in full)
  
 `merchants.csv`
@@ -74,9 +71,8 @@ Data on each merchant that integrates Affirm's checkout product
 
 
 2. Calculate conversion through the funnel by day such that the data structure is:
+- To update
 
-3. At Affirm we use the concept of GMV which is basically the financed amount of loans generated in a timeframe. Let's say that on a given a day a dashboard that reports GMV by day by merchant looks off. Which models would you prioritize investigating and why? 
+3. At Affirm we use the concept of GMV (gross merchandises value) which is basically the financed amount of loans generated in a timeframe. Let's say that on a given day, our dashboard that reports GMV aggregated by day and by merchant looks off. Which models would you prioritize investigating and why?
 
-4. As our data keeps growing the Storage and Replication team is now asking us to partition the data so it increases the performance of queries, which file (only one) would you see being the most benefitial of this structure? And which partitions would choose and why? Please provide a python script that will load the chosen file and the script that would partition it following your choice
-
-
+4. As our data keeps growing the Storage and Replication team is now asking us to partition the data so it increases the performance of queries. Which file (only one) would you see being the most beneficial to optimize for? Which partitions would you choose and why? Please provide a Python script that will load the chosen file and a script that will partition the data.
