@@ -25,7 +25,7 @@ Question 2
 Calculate conversion through the funnel by day such that the data structure is:
 - Up to date
 
-Here's my [result](senior_core_analyst/Affirm_AderimikeLala/Conversion Funnel.csv)
+Here's my [result](Affirm_AderimikeLala/Conversion Funnel.csv)
 
                         -------------------------------
 Question 3
