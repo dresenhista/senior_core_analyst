@@ -70,8 +70,7 @@ Data on each merchant that integrates Affirm's checkout product
 |2016-05-02|120       |90         |81          |63           |0.75            |0.90         |0.78             |
 
 
-2. Calculate conversion through the funnel by day such that the data structure is:
-- To update
+2. Calculate conversion through the funnel by day
 
 3. At Affirm we use the concept of GMV (gross merchandises value) which is basically the financed amount of loans generated in a timeframe. Let's say that on a given day, our dashboard that reports GMV aggregated by day and by merchant looks off. Which models would you prioritize investigating and why?
 
