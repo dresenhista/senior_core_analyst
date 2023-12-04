@@ -1,0 +1,50 @@
+
+
+## Question 1: 
+
+Please review the integrity of the data. Do you notice any data anomalies? If so, please describe them.
+
+Firstly, there is a signficant decrease in application rate in one day. On 2016-05-02, the application rate decreased from 0.8 to 0.75. It's unusual for the application rate to decrease while the number of loaded applications increases. Typically, as the number of loaded applications increases, the application rate should also increase a whole.
+
+Further, the approval rate increased from 0.75 to 0.90 on 2016-05-02. This is a substantial increase, and it's worth investigating whether there was a specific reason for this spike.
+
+Moreover, the number of confirmed actually increased in one day more than the numebr applied (the former increased by 21 and the latter increased by 10) which does not make sense from a flowing perspective.
+
+## Question 3:
+
+If the dashboard is reporting GMV aggregated by day and by merchant looks off, there could be various reasons for discrepancies. Here are some potential models or factors you might prioritize investigating:
+
+1.  **Data Integrity and Collection:**
+    
+    -   **Data Sources:** Ensure that the data sources feeding into your GMV calculations are accurate and complete. Check if there are any missing or incorrect entries.
+    -   **Data Collection Processes:** Investigate the methods used to collect data. Ensure that the data collection processes are consistent and free from errors.
+2.  **Merchant Categorization:**
+    
+    -   Check how merchants are categorized. If there have been changes in the categorization methodology or if new merchants have been added, it could impact the aggregated GMV.
+3.  **Currency Conversion:**
+    
+    -   If you deal with multiple currencies, check if there are any discrepancies in the currency conversion process. Inconsistent or incorrect conversion rates could lead to inaccurate GMV calculations.
+4.  **Transaction Types:**
+    
+    -   Examine the types of transactions included in the GMV calculation. Ensure that only relevant transactions are considered (e.g., exclude test transactions, refunds, or other non-sales activities).
+5.  **Data Aggregation and Summation:**
+    
+    -   Verify the methods used for aggregating GMV by day and by merchant. Ensure that the aggregation process is consistent and accurately captures the total value of transactions.
+6.  **Timezone Differences:**
+    
+    -   Check if there are any timezone differences between the data sources. Ensure that all timestamps are consistent and aligned to the same timezone.
+7.  **Merchant Onboarding or Changes:**
+    
+    -   Investigate if there have been recent changes in merchant onboarding or changes in agreements that could impact the GMV reporting.
+8.  **External Events:**
+    
+    -   Consider external events that might influence GMV, such as marketing campaigns, promotions, or changes in the economic environment. These factors can affect transaction volumes.
+## Question 4:
+
+As our data keeps growing the Storage and Replication team is now asking us to partition the data so it increases the performance of queries. Which file (only one) would you see being the most beneficial to optimize for? Which partitions would you choose and why? Please provide a Python script that will load the chosen file and a script that will partition the data.
+
+
+In this context, optimizing for performance typically involves choosing a file that is frequently queried and benefits the most from partitioning. Looking at the provided descriptions, it seems that the  loans.csv file is a good candidate for optimization, especially if queries often involve loan-related information.
+
+I saved the python script that loads the loans.csv file and partitions the data based on the merchant_id and checkout_date columns. 
+
