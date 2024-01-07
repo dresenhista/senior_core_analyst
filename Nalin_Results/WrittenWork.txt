@@ -1,0 +1,30 @@
+Question 1:
+
+When comparing against the average Approval Rate of 48.7%, it appears that the Approval rates on 2016-05-01 and 2016-05-02 were significantly higher than normal. 
+Although, this may not be a cause for concern as the data seems to fluctuate a lot on a daily basis. 
+
+In addition to this, the formatting of the '0.8' in the application_rate column is inconsistent, a minor detail but still important to highlight. 
+
+Question 2:
+
+Data available in SQL file.
+
+Question 3:
+
+The first step in my investigation is to ensure there are no data quality issues or recent changes made to the underlying code/pipelines.
+Once I rule out any basic errors in the data, I would would want to narrow down the issue and try to isolate it. For example, if the data issues
+were related to a specific merchant I would look through loan data at the merchant level and ensure that there are no issues related to that specific merchant and the way their 
+data is being reported. 
+
+If no issues can be discovered, I would look at the overall data at the loan level and look to see if there was an increase or decrease in the number of loans being issued, if there was a 
+drastic increase/decrease that might help explain why GMV numbers look odd. 
+I would also look at loan amounts and look to see if there has been an increase or decrease in the average loan amounts, from here I can also check to see if there were any abnormally
+large loans that might be skewing the data. 
+
+Question 4:
+
+I would seek to optimize the loans.csv file as it is the largest file, with a huge number of columns and rows. Additionally this file would most likely grow the quickest and would
+be used for a lot of analysis as it stores both user profile and loan data. 
+
+I would partition on merchant_id and checkout_date as these are typical fields that one would be querying on, majority of analysis would be filtered by merchant or over a specific
+date range. By partitioning on merchant_id and checkout_date, any queries made on these fields would be significantly more efficient to run. 
