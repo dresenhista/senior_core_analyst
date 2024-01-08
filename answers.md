@@ -3,6 +3,8 @@
 I do notice some anomalies. 
 First, there are multiple instances of merchant_ids in both the funnel and loans tables that do not exist in the merchants table.
 Second, there seems to be 6 duplicate rows of data in the funnel and loans tables. All the data is the same, except for the checkout id. Now in some cases these might be correct, but I'd assume that in most cases users are not taking out 2 loans of the same amount in the same day.
+Third, I noticed that the date format for checkout_date in the loans table varies. 
+Lastly, there are a few days in which the approval rate is over 10% higher than the average. There might be an error here or they could have been better days
 
 2. Calculate conversion through the funnel by day
 
@@ -15,9 +17,10 @@ culprit for the error. If I examined the loans model and couldn't find any error
 
 4. As our data keeps growing the Storage and Replication team is now asking us to partition the data so it increases the performance of queries. Which file (only one) would you see being the most beneficial to optimize for? Which partitions would you choose and why? Please provide a Python script that will load the chosen file and a script that will partition the data.
 
-I would partition the funnel file as it contains the most data by far and I believe that this table will predominantly be queried using a filter on the action_date column. 
-The first partition I would choose would be action_date because sorting this data by date would allow for any rows that do not fall into the date range provided in a query to be avoided/skipped as they are contained within a different partition. 
-If the first partition on action_date was not enough, I would add another on Merchant_id as I believe this is the second most used in where clauses. 
+In this case I am assuming that monitoring/reporting loan data is more important to Affirm than monitoring the customer journey or flow through the funnel. As a result, I would partition the loans file because the loans file will contain the most used data and I believe that the table will predominantly be queried using a filter on the checkout_date column. 
+
+The first partition I would choose would be checkout_date because sorting this data by date would allow for any rows that do not fall into the date range provided in a query to be avoided/skipped as they are contained within a different partition. 
+If the first partition on checkout_date was not enough, I would add another on Merchant_id as I believe this is the second most used in where clauses. 
 
 I'm not as familiar with Python as I am SQL so I wasn't 100% sure how I was expected to partition the data. 
-I wrote a script that takes the funnel.csv file, sorts it by action_date, checkout_id and action and exports the data into 3 new csv files that break the data up by the month in which the action took place. 
+I wrote a script that takes the loans.csv file, sorts it by checkout_date and merchant_id and exports the data into 3 new csv files that break the data up by the month in which the action took place. 
