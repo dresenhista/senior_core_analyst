@@ -1,0 +1,136 @@
+## Questions
+
+1. Please review the integrity of the data. Do you notice any data anomalies? If so, please describe them.
+
+    Note: For this portion of my analysis, I uploaded the supplied data tables into a local Postgres server and then ran queries on the tables
+    using the pgAdmin 4 IDE. 
+
+    Funnel Table
+        - There are 67202 user_ids stored as "0". If these are not available, it would be preferred if they were stored as null values. 
+        - The Action_Date field format is not compatible with Postgres ingestion formats therefore I transformed the date field using the following code 
+        "make_date(
+            substring(action_date, '/(....) ')::int,
+            substring(action_date, '(\d)/')::int,
+            substring(action_date, '/(.*)/')::int
+        ) as action_date"
+
+        Notes (Not Anomalies, Just Other Things I Noted):
+            - The unique key for this table appears to be a combination of checkout_id and action 
+            - Action = Checkout Completed, Checkout Loaded, Loan Terms Approved, Loan Terms Run
+            - Date Range from Jan 1 2016 to Mar 31 2016
+            - Count of Records per day looks relatively consistent
+            - Merchant_id, Checkout_id, Action, and Action_Date are not null (or not 0)
+
+    Loans Table
+        - There are some questionable User_DOB_Year values. There are 2 rows at the minimum of 1899, meaning the user would be
+            roughly 117 at the time of the loan. Which seems unlikely. I think it would be worth further validating
+            the field and the users with particularly low DOB Years. 
+        - There are 559 Fico_Scores stored as "0". The minimum possible Fico Score is 350.
+            If these are not available, it would be preferred if they were stored as null values.
+            My assumption is that there is some logic to determine which users need to provide a credit check versus 
+            those that don't. However, I'm not able to determine the logic from the provided data. 
+            Those with a '0' Fico_Score do tend to have a lower Loan_Amount, but this is not exclusive. 
+            This is also not determined by Merchant_ID
+        - There are 24308 user_ids stored as "0". If these are not available, it would be preferred if they were stored as null values.
+        - The Checkout_Date field format is not compatible with Postgres ingestion formats and inconsistent from the Funnel table,
+        therefore I transformed the date field using the following code.
+        Note, I hardcoded '20' here because the year format was limited to the last 2 digits. This worked for this example because
+        all dates are assumed to be in 2016, but for a dataset that could extend prior to '2000', a different strategy would 
+        be needed. 
+        "make_date(
+	        concat('20', substring(checkout_date, '/(..) '))::int,
+	        substring(checkout_date, '(\d)/')::int,
+	        substring(checkout_date, '/(.*)/')::int
+	    ) as checkout_date"
+
+        Notes:
+            - The unique key for this table appears to be the Checkout_ID
+            - All User_Ids appear to be valid. There are no '0' IDs, unlike the Funnel table
+            - Checkout Date from 2016-01-01 to 2016-03-31
+            - Loan_Amount from 0.23 to 34020
+            - Down_payment_amount from 0 to 16520
+            - User_DOB_Year from 1899 to 1997
+            - Loan_Length_Months from 1 to 18
+            - MDR from 0 to 0.2, average 0.0328
+            - APR from 0 to 0.3, average 0.195
+            - Fico_Score from 0 to 850
+            - There are 2921 rows with a Loan_Return_Percentage at or below 0, which means the loan wasn't paid in full. 
+
+    Merchants Table
+        - The Merchant_Name = "Roquefort NYC" is listed twice in the Merchants table under two separate Merchant_IDs. This seems like
+        a data error to me and I would like to verify why this is the case with stakeholders. 
+
+        Notes:
+            - The unique key for this table appears to be the Merchant_ID 
+
+
+|date      |num_loaded|num_applied|num_approved|num_confirmed|application_rate|approval_rate|confirmation_rate|
+|----------|----------|-----------|------------|-------------|----------------|-------------|-----------------|
+|2016-05-01|100       |80         |60          |30           |0.8             |0.75         |0.50             |
+|2016-05-02|120       |90         |81          |63           |0.75            |0.90         |0.78             |
+
+
+2. Calculate conversion through the funnel by day
+
+    Looking at the example from above, I've determined the logic for each field to be:
+        num_loaded: When Action = 'Checkout Loaded'
+        num_applied: When Action = 'Loan Terms Run'
+        num_approved: When Action = 'Loan Terms Approved'
+        num_confirmed: When Action = 'Checkout Completed'
+
+        application_rate: num_applied/num_loaded
+        approval_rate: num_approved/num_applied
+        confirmation_rate: num_confirmed/num_approved
+
+    See question_two.sql for the code used to calculate this along with the Result Snippet.
+
+3. At Affirm we use the concept of GMV (gross merchandises value) which is basically the financed amount of loans generated in a timeframe.
+Let's say that on a given day, our dashboard that reports GMV aggregated by day and by merchant looks off. Which models would you prioritize
+investigating and why?
+
+    The answer to this really depends on what results are being shown and/or how this is being reported. 
+        - If this complaint is coming from an end user of the dashboard, I would first verify that there's no user error happening.
+        I would also validate what the end user thinks the correct range should be which may indicate which metrics are 
+        erroring out. 
+        - In an ideal world, there would be thorough testing throughout the dbt models that feed into the dashboard. So perhaps the
+        error is being flagged through the dbt production run or within Monte Carlo. Otherwise, I would look through the latest production
+        run for any failures or warnings that may show where the root of the issue came from. 
+        - If neither of the above strategies led me in a specific direction, then I would start with the model that directly
+        feeds into the dashboard (ie. fct_daily_gmv_by_merchant or similar) and work my way up to the raw data models. I would verify that
+        the tables are showing the same final results as the dashboard; I would check GitHub to see if any changes were recently made
+        to those models; I would verify that fresh data was loaded into the pipeline that day; I would verify that the models that feed into
+        GMV metrics were all run on one dbt pipeline through Airflow; etc. 
+
+4. As our data keeps growing the Storage and Replication team is now asking us to partition the data so it increases the performance of queries.
+Which file (only one) would you see being the most beneficial to optimize for? Which partitions would you choose and why?
+Please provide a Python script that will load the chosen file and a script that will partition the data.
+
+    In the case that we needed to partition the data in order to increase performance, I would choose to partition the funnel table across the 
+    variables of action_date and merchant_id. Secondarily, I would consider partitioning by checkout_id. This is based on Snowflake's strategies
+    for selecting cluster keys, linked here:
+        (https://docs.snowflake.com/en/user-guide/tables-clustering-keys#strategies-for-selecting-clustering-keys)
+
+        - I chose the funnel table because it is x10 the size (433k rows) of the loans table (44k rows) for the same time period. Also, it is 
+        an event type table which are notorious for large data volumes and are a good use case for partitioning.
+
+        - I chose the action_date variable for partitioning because this field meets the category of being actively used in selective filters,
+        specifically in an ordered format as is the case with date filters.
+        - I chose the merchant_id variable for partitioning because it is a proxy for an event type that has a relatively large number
+        of different event types (17 distinct merchant_ids).
+
+        - Secondarily, I would consider checkout_id because it is a foreign key to the loans table and will likely be used in joins frequently.
+
+        - It is unlikely that I would consider the User ID variable for partitioning, because there are 67202 User IDs stored as null/"0" values.
+        Additionally, none of the tables provided use User ID as a foreign key, leading me to believe that it's not a common join. With Additional
+        information I may reconsider this approach. 
+        - I would not consider the action variable for partitioning because there are only 4 types of actions, which would have minimal impact
+        on performance. 
+
+    I haven't previously used partitioning with Python mainly because I'm used to working with databases that automatically handle this functionality.
+    For instance, Snowflake has auto-clustering and micro-partitioning (https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions). 
+    I have set cluster-keys using Snowflake/dbt when absolutely necessary and beneficial using the following approach: 
+    (https://docs.getdbt.com/reference/resource-configs/snowflake-configs#configuring-table-clustering)
+
+    That being said, I understand that different pipelines exist and clustering may be required based on the setup.
+    Please see question_four.py for my attempt at partitioning in Python. While this method works for a local Postgres setup,
+    this is very dependent on the setup and may differ depending on the tools used. 
