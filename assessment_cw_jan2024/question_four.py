@@ -6,7 +6,7 @@ db_params = {
     'host': 'localhost',
     'dbname': 'affirm',
     'user': 'admin2',
-    'password': '123456'
+    'password': 
 }
 
 engine = create_engine(f"postgresql://{db_params['user']}:{db_params['password']}@{db_params['host']}/{db_params['dbname']}")
