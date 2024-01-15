@@ -9,46 +9,46 @@ each corresponding programming language (sql / python). The structure is as foll
 <hr> 
 
 ### 1) Please review the integrity of the data. Do you notice any data anomalies? If so, please describe them.
-There were a few anomalies that occurred during my EDA of the data tables provided. All the queries in the EDA can be 
-found in the file `main/sql/question_one.sql` and each query is commented with an explanation and a summary of the
-results. I will also reference each query for each interesting anomaly found below. 
+There were a few anomalies discovered during an exploratory analysis of the data tables provided. All the queries in the 
+EDA can be found in the file `main/sql/question_one.sql` and each query is commented with an explanation and a summary of 
+the results. I will also reference each query for any interesting anomalies found below. 
 
 ##### Funnel Table Anomalies 
 1. The **distribution of the merchants broken down by number of user interactions is quite heavily skewed**. An interaction
-here is defined by each row in the funnel table. The range in terms of the number of interactions for each merchant is
+here is defined by each row logged in the funnel table. The range in terms of the number of interactions for each merchant is
 quite wide, from the top merchant seeing almost 2 million impressions, while the lowest seeing only 3. While this is not 
-a data error, the data distribution here is quite interesting and has some outliers. (Query A1)
+a data error, the data distribution here is quite interesting and has some potential outliers. (Query A1)
 2. There are **users that have been assigned user ids, despite never reaching the `Loan Term Run` stage**. Since user ids 
 are not assigned until the `Loan Term Run` action, these users should not have user ids. A possible explanation is that 
-these users might have reached the `Loan Term Run` action before the date range of the data we received here. However 
-it's still worth pointing out that this was a discrepancy in the data. Also, there were users that had more `Loan Term Run` 
-actions than `Checkout Loaded`, despite supposedly being further down the funnel. Although, I have checked the flows on
-some merchant sites (as of 2024-01-13), and there are instances where you can trigger a module with the learn more cta to 
+these users might have reached the `Loan Term Run` action outside the date range of the data we have, which will require
+further investigation. Also, there were users that had more `Loan Term Run` actions than `Checkout Loaded`, despite the 
+former action supposedly being further down the funnel. Although, I have checked the flows on some merchant sites 
+(as of 2024-01-13), and there are instances where you can trigger a module with the "learn more" cta to 
 apply for loan before the checkout screen. Thus, it could be a possible explanation for those edge cases. Until we can
 confirm that these are intended behaviours, these should be flagged as potential anomalies (Query A5).
 
 
-##### Loan Table Anomalies 
+##### Loan Table Anomalies
 1. Similar to user interactions, the merchants have a pretty skewed distribution in terms of loans as well. The number 
-of loans range from 1 to 22343 from the lowest to top merchant, and the total loan amounts reflect that too. (Query B1)
+of loans range from 1 to 22,343 from the lowest to top merchant, and the total loan amounts reflect that too. (Query B1)
 2. **MDR and APR are 0 for certain loans.** While these could be promotional offers or special cases, without further context,
 it's hard to conclude that these are not just data errors or invalid values. However, there is never a case where MDR 
-and APR are both 0, so that could support the fact that it's a promotional thing as there is always a revenue generator.
+and APR are both 0, so that could support the fact that it's a promotional aspect, as there is always a revenue generator.
 Nonetheless, it's worth pointing out for further discussion / investigation (Query B6 - B8)
 3. **FICO scores have 0 as values.** The range for this score should be 300 - 850, but there are quite a few loans where
 it is 0. This could be a nullable field for users that did not return FICO scores, however it's ideal if this variable
 had all valid values, as it could prove useful in other analysis and use cases downstream when it comes to predicting user
-value. 
+value and risk.
 
 
 ##### Merchant Table Anomalies 
 1. The merchant id `LWGKASO1U9UXFLAJ` exists in both the `Funnel` and `Loans` table, but not the `Merchants` table. This means
-that there is a missing value in our dimension table and should be added in for lookup purposes. (Query C1 - C2)
+that there is a missing value in this dimension table and should be added in for consistent lookup purposes. (Query C1 - C2)
 
 
 ##### Miscellaneous Anomalies
 1. The date fields for both `Funnel` and `Loans` seem to be in string format. They also have timestamp values of 00:00, 
-but should ideally be converted to date-time and truncated to just show the date for consistency. (Query D2)
+but should ideally be converted to date-time and truncated to just show the date for consistency (eg: 2023-03-31) (Query D2)
 2. The date format is different between `Funnel` and `Loans`, as `Funnel` shows 'mm/dd/yyyy' and `Loans` shows `mm/dd/yy`.
 This should be aligned between tables if possible to avoid confusion for stakeholders of these tables. (Query D2)
 
@@ -69,13 +69,13 @@ a user flow that matched the funnel in the same way the conversion rates are flo
 For this question, I created a sample GMV model based on my assumptions for this question. The code can be found at 
 `main/sql/question_three.sql`. It essentially aggregates the `Loans` table by day and merchant id, LEFT JOINs `Merchants`
 for merchant details and a SUM on the `loan_amount` column. In this case, the primary table to investigate would be the 
-`Loans` table. It's the table that is providing the values for GMV, as well as our date and merchant id variables. The 
+`Loans` table. It's the table that is providing the values for GMV, as well as the date and merchant id variables. The 
 `Merchants` table here is mostly just a dimensional lookup for the merchant name, and we do not use the `Funnel` table 
 to calculate daily merchant GMV. As a result, the `Loans` table would be the highest priority. We should investigate 
 this table  for data quality, as well as any upstream models that powers this`Loans` table to root out where this data 
-discrepancy may be coming from. There could a chance that a merchant could be missing and making our dashboard look 
+discrepancy may be coming from. There could a chance that a merchant name could be missing and making our dashboard look 
 strange, so depending on the discrepancy observed we can also look at the `Merchants`table as a secondary point of 
-investigation. Overall, the best place to start is definitely the `Loans` model and then working backwards upstream if 
+interest. Overall, the best place to start is definitely the `Loans` model and then working backwards upstream if 
 the numbers look off for our dashboard. 
 
 A side note here would also be depending on which BI tool we are using for dashboarding, as there may be a layer that's 
@@ -111,19 +111,21 @@ are still there for more lightweight use cases, but for situations where it's be
 in cases like the conversion funnel by day model), it is still available to use. 
 
 
-Additionally, in an ideal world, if the benefits of having the entire pipeline convert the `Funnel` table into only 
-partitioned tables without the need of an intermediate table, it might be worth removing that table completely. In other 
-words, if most of the need for these models are around more lightweight and efficient querying, it may be better to 
-remove the `Funnel` model altogether and replace it with only the partitioned tables. Although you may lose the 
-convenience of a single table for certain use cases, the amount of compute and potential tech debt / support it frees up 
-each up day, might be worth it over the efficiency loss on handful of use cases of having an intermediate table for 
-`Funnel` in production. However, this may be getting out of the scope of this assignment, as we need to create a script
-that will load in an existing `Funnel` model and create new partitions, rather than evaluate whether it's more optimal to replace 
-the pipeline for this model. In this case, the python script can be found at `main/python/question_four.py`. 
+However, in an ideal world, if the benefits of having the entire pipeline for the `Funnel` model to be converted into only 
+partitioned tables without the need of an intermediate table outweigh the negatives, it might be worth removing that 
+model completely. In other words, if most of the need for these models are around more lightweight and efficient querying,
+it may be better to remove the `Funnel` model and jobs altogether and replace it with a pipeline for the partitioned tables
+only. Although you may lose the convenience of a single table for certain use cases, the amount of compute and potential
+tech debt / support it frees up each up day, might be worth it over the efficiency loss on handful of use cases of 
+having an intermediate table for `Funnel` in production. While this may be worth investigating and looking into, 
+this may be getting out of the scope of this assignment, as we need to create a script that will load in an existing 
+`Funnel` model and create new partitions, rather than evaluate whether it's more optimal to replace the pipeline for this 
+model.
 
-Side note: The script here is created so it can be run and reproduced locally with CSV files and will output CSV files 
-as the partitioned tables. In production, this will most likely be connecting to a database to create the tables to the 
-db server. There should also be proper tests and orchestration for this task if putting to production. 
+The python script for this job can be found at `main/python/question_four.py`. Side note: The script here is created so 
+it can be run and reproduced locally with CSV files and will output CSV files as the partitioned tables. In production, 
+this will most likely be connecting to a database to create the tables to the db server. There should also be proper 
+tests and orchestration for this task if putting to production.
 
 
 

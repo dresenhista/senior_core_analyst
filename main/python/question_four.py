@@ -1,4 +1,4 @@
-from pathlib import Path
+import pathlib import Path
 import pandas as pd
 
 def create_partitions(import_table, export_prefix, partition_column, outdir, project_root):
