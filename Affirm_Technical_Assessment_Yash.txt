@@ -1,0 +1,62 @@
+Affirm Technical Assessment
+
+## Questions and Answers
+
+### 1. Data Integrity Review
+In reviewing the datasets, the following anomalies and points of interest were noted:
+
+Funnel Table:
+
+A substantial number of user_id entries recorded as '0', suggesting potential missing data or a placeholder for non-logged-in users.
+The action_date field required formatting for SQL compatibility, necessitating conversion to a standard date format.
+
+Loans Table:
+
+Outliers in User_DOB_Year, including ages that seem implausibly high.
+Several entries with Fico_Score as '0', indicating either missing data or a need for a different data representation.
+
+Merchants Table:
+
+Duplicate merchant entries under different IDs, raising questions about data consistency.
+
+You can check sql_queries.sql for more.
+
+### 2. Conversion Through the Funnel by Day
+Please check sql_queries.sql
+
+
+
+### 3. GMV (Gross Merchandises Value) Analysis
+When investigating an issue with the GMV (Gross Merchandise Value) dashboard at Affirm, which reports the financed amount of loans aggregated by day and by merchant, my approach would be systematic and data-driven. Here's how I would prioritize my investigation:
+
+1. Loan Transaction Data
+Given that GMV is calculated from loan amounts, the first model I would scrutinize is the one handling loan transactions. My focus areas would include:
+
+Integrity of Loan Amounts: I'd verify the accuracy of loan amounts in the database. Any anomalies, such as exceptionally high or low loan amounts, could significantly distort GMV calculations.
+Accuracy of Transaction Dates: I'd ensure that the transaction dates are correctly recorded. Misdated loans could lead to erroneous GMV figures on specific days.
+Status of Loans: It’s crucial to check that only finalized loans (not just applied for or approved) are considered in GMV calculations, as pending or rejected loans should not contribute to the GMV.
+2. Merchant Data Consistency
+Since GMV is reported by merchant, the integrity of the merchant-related data is vital. My steps here would include:
+
+Merchant ID Validation: I'd verify the consistency of merchant IDs across different datasets. Mismatches or inaccuracies in merchant IDs can cause errors in GMV aggregation by merchant.
+Handling Duplicate Merchant Entries: In cases of duplicate merchant entries under different IDs, I'd investigate to understand the cause and rectify any discrepancies, ensuring accurate GMV reporting per merchant.
+3. Data Aggregation Logic
+The logic used to aggregate and report GMV is critical. I would:
+
+Review Aggregation Queries: Examine the SQL queries or scripts used for aggregating GMV to ensure they are correctly written and free of logical errors.
+Temporal Consistency Checks: Check if the data aggregation logic correctly handles temporal aspects, such as time zones and daylight saving changes, which might affect daily GMV figures.
+4. Integration Points
+As GMV calculation might involve data from various sources:
+
+Data Pipeline Integrity: I'd review ETL (Extract, Transform, Load) processes to ensure data is accurately transferred and transformed across systems.
+External Data Sources: If external data sources are used, I'd verify their reliability and ensure proper integration with our internal systems.
+5. Dashboard and Reporting Tools
+Sometimes, the issue might lie not in the data but in how it's represented:
+
+BI Tool Configuration: I'd examine the configuration of the Business Intelligence tool used for the dashboard, ensuring that metrics are correctly set up and displayed.
+Data Refresh Schedules: Check if the dashboard is updated in real-time or batch-processed. Delays or errors in scheduled updates can lead to discrepancies in reported figures.
+
+
+
+### 4. Data Partitioning for Performance
+Please check Python_script_Yash
